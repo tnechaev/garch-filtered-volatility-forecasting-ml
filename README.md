@@ -162,7 +162,7 @@ All engineered features are checked to ensure **no forward-looking bias** or dat
 ## 3. Validation Results
 
 | Metric                     | Value |
-|------------- --------------|-------|
+|----------------------------|-------|
 | Pooled IC, residuals, ML   | 0.29  |
 | DE IC, residuals, ML       | 0.08  |    
 | FR IC, residuals, ML       | 0.18  |
