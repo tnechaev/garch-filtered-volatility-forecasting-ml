@@ -2,7 +2,7 @@
 
 ## DE–FR Coupled Power Market
 
-**This is a re-upload of the project. The previous version had a few issues and a steep learning curve :D This new upload is active work in progress**
+**This is a re-upload of the project. Previous version had a few issues. This new upload is active work in progress**
 
 This project implements a **hybrid volatility forecasting and signal extraction framework** for 24-hour electricity futures in a coupled European power market (Germany–France).
 
@@ -161,16 +161,20 @@ All engineered features are checked to ensure **no forward-looking bias** or dat
 
 ## 3. Validation Results
 
-| Metric                  | Value |
-|-------------------------|-------|
-| Train Spearman          | ~0.44 |
-| Test Spearman           | ~0.31 |
-**More is being added**
+| Metric                     | Value |
+|------------- --------------|-------|
+| Pooled IC, residuals, ML   | 0.29  |
+| DE IC, residuals, ML       | 0.08  |    
+| FR IC, residuals, ML       | 0.18  |
+| DE IC, baseline GARCH      | 0.07  |
+| FR IC, baseline GARCH      | ~0    |
+| DE rank autocorr.          | 0.78  |
+| FR rank autocorr.          | 0.68  |
 
 **Interpretation:**
-- The model extracts statistically significant and persistent structure
+- The model extracts statistically significant and persistent structure, tradeable outcome
 - Performance is stable across time
-
+- Additional details can be found in the notebook
 ---
 
 ## 4. Trading Strategy
@@ -190,9 +194,11 @@ Model predictions are translated into a **relative volatility spread strategy**:
 
 | Metric               | Value |
 |----------------------|-------|
-| Sharpe Ratio         | 0.82  |
-| Max Drawdown         |-15.35 |
-| Avg Daily Turnover   | 0.52  |
+| Sharpe Ratio         | 0.8   |
+| Max Drawdown         |-13.8  |
+| Avg Daily Turnover   | 0.48  |
+
+Additional evaluation and details can be found in the notebook.
 
 These results are consistent with a **realistic, market-neutral relative-volatility arbitrage strategy**, rather than a directional volatility bet.
 
