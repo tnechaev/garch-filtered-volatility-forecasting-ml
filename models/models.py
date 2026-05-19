@@ -427,9 +427,9 @@ def feature_selection(
     # ---- Per-fold vol zscore (training window only) --------------------------
     def _compute_fold_zscore(fold_df, train_mask, pref):
         """
-        Returns a boolean Series (same index as fold_df) where True = high-vol
-        regime row. Computed from training window statistics only — no lookahead.
-        Used to split training data for regime-aware importance, NOT as a feature.
+        Returns a boolean series (same index as fold_df) where true = high-vol
+        regime. Computed from training window statistics only.
+        Used to split train data for regime-aware importance, not as a feature.
         """
         rv_col = f"{pref}_realized_vol"
         if rv_col not in fold_df.columns:
@@ -835,17 +835,16 @@ def detect_markov_regime(
     random_state: int = 42,
 ) -> tuple:
     """
-    Gaussian HMM regime detection using FILTERED (causal) probabilities.
+    Gaussian (mix) HMM regime detection using filtered (causal) probabilities.
 
     The original used model.predict_proba() which calls the forward-backward
-    algorithm and returns SMOOTHED posteriors P(state_t | obs_1..obs_T).
-    These use future observations — lookahead.
-
+    algorithm and returns smoothed posteriors P(state_t | obs_1..obs_T).
+    These use future observations, so not allowed.
     This version replaces that with the FORWARD PASS ONLY, computing
     filtered posteriors P(state_t | obs_1..obs_t) via the alpha recursion.
     No future observation influences the probability at time t.
 
-    Output contract: identical to the original.
+    Output: identical to the original.
         data_df        : DataFrame, same index as input (after dropna),
                          columns: regime, regime_prob_0, regime_prob_1, ...
         diagnostics    : dict with transition_matrix, means (original scale),
@@ -958,7 +957,6 @@ def add_regime_probs_to_panel(
     """
     Fit detect_markov_regime ONCE per country on the full panel,
     then attach filtered regime_prob columns to the panel.
-
     Has to be called before CV loop. 
     
     Returns
