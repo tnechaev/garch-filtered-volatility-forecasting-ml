@@ -31,9 +31,12 @@ The objective is **relative ranking of volatility (cross-sectional signal extrac
 
 **19.05.2026** 
 Status update:
-- I couldn't find a sufficient amount of 15min-frequency price data (I think it only started to be public quite recently) to backtest an intraday strategy (>1 daily volatility points) ->
-- This removes an interesting opportunity for this project to expore more of the intraday variation, test when more exogenous features such as weather or forecast errors could make a difference. 
-- State of the art right now: daily RV -- smoothened signal, volatility also has a persistent structure. XGBoost only uses very few features, mostly time structure (lags), certain country-specific generation types and residual load. It also needs a regime detector and a co-running hyperparameter optimizer to control overfitting, which makes it slower than the HAR-RV baseline, (min or 10s of min scale, depending on number of Optuna runs, vs seconds of HAR) but doesn't yield significantly better results. **Conclusion:** this XGBoost implementation is probably a bit of an overkill for this task, but is definitely useful for higher data granularity and potential live deployment, especially on a decent cluster. Trading logic is valid for the task.
+
+- **State of the art right now:** I wanted to have as large history as possible, but that meant I had to use hourly DA prices.  Then, to make it a volatility and not a pure price forecaster (see below for why), I extracted daily realized volatility -- smoothened signal that has a persistent structure. 
+
+XGBoost in this case only uses very few features, mostly time structure (lags), certain country-specific generation types and residual load. It also needs a regime detector and a co-running hyperparameter optimizer to control overfitting, which makes it slower than the HAR-RV baseline, (min or 10s of min scale, depending on number of Optuna runs, vs seconds of HAR) but doesn't yield significantly better results. 
+
+**Conclusion:** this XGBoost implementation is likely an overkill for this task, but is definitely useful for higher data granularity and potential live deployment, especially on a decent cluster. Trading logic is valid for the task.
 - **What's next?** I'm looking for options for exploring intraday variation:
 	- Maybe forecasting hourly log_returns directly. But it is a significantly noisier and harder target. 
 	- Volatility has an advantage of having more structure, so another possibility could be to create an hourly volatility proxy, just from hourly data. Then full 11+ year history can be preserved and used.
