@@ -29,19 +29,21 @@ The objective is **relative ranking of volatility (cross-sectional signal extrac
 
 ## WHAT'S NEW
 
-**19.05.2026** 
+**25.05.2026** 
 Status update:
 
 - **State of the art right now:** 
-	- I wanted to have as large history as possible, but that meant I had to use hourly DA prices.  Then, to make it a volatility and not a pure price forecaster (see below for why), I extracted daily realized volatility -- smoothened signal that has a persistent structure. 
+	- I wanted to have as large (by year) history as possible, but that meant I had to use hourly DA prices.  Then, to make it a volatility and not a pure price forecaster (see below for why), I extracted daily realized volatility -- smoothened signal that has a persistent structure. 
 
-	- XGBoost in this case only uses very few features, mostly time structure (lags), certain country-specific generation types and residual load. It also needs a regime detector and a co-running hyperparameter optimizer to control overfitting, which makes it slower than the HAR-RV baseline, (min or 10s of min scale, depending on number of Optuna runs, vs seconds of HAR) but doesn't yield significantly better results. 
+	- XGBoost in this case only uses very few features, mostly time structure (lags), certain country-specific generation types and residual load. It also needs a regime detector and a co-running hyperparameter optimizer to control overfitting, which makes it slower than the HAR-RV baseline, (min or 10s of min scale, depending on number of Optuna runs, vs seconds of HAR) but doesn't yield significantly better results, if calm regime is considered. In high-vol regime, it helps to predict residuals, which HAR-RV wasn't able to. But high-vol regime here is only about 27% of data.
 
-	- **Conclusion:** this XGBoost implementation is likely an overkill for this task, but is definitely useful for higher data granularity and potential live deployment, especially on a decent cluster. Trading logic is valid for the task.
-- **What's next?** I'm looking for options for exploring intraday variation:
-	- Maybe forecasting hourly log_returns directly. But it is a significantly noisier and harder target. 
-	- Volatility has an advantage of having more structure, so another possibility could be to create an hourly volatility proxy, just from hourly data. Then full 11+ year history can be preserved and used.
-	- But the most interesting for me now would be to have a DA-ID spread to forecast, which comes with a data availability limitation -- I could only find ID (15min frequency) data from full 2021 (FlexPower Quant Challenge) and from 09.2024 to 05.2026, in a private Github repo (to be disclosed), so a bit less than 3 years. That's good to capture seasonality, pre and post 2022, all kinds of intraday spikes, weather dependence and so on, but wouldn't be a robust OOS test. I will nevertheless try to proceed this way. Results to come soon.
+	- **Conclusion:** this XGBoost implementation is likely an overkill for most of the data, at least in calm regimes. But it is definitely useful for residual volatility prediction in high-vol regime, as well as for higher data granularity and potential live deployment, especially on a decent cluster. Trading logic is valid for the task.
+	
+- **What's next?**
+
+	- This specific project can be potentially extended by exchanging the definition of volatility, to specifically separate predictable, structural price changes from the genuine volatility component, and to have hourly resolution. I might implement and explore a new volatility target, based on this paper: https://arxiv.org/pdf/2605.13320v1
+
+	- Forecasting of DA-ID price spread, which comes with a data availability limitation -- the only ID price data I could get (15min resolution, IDA1) covers a bit less than 3 years. This is enough to capture daily/weekly structure and seasonality, but likely not sufficient for proper regime shifts exploration. This will be a separate project, more details to come soon.
 
 **04.04.2026**
 - Regime-conditional CV targets: high-vol regime -- predict HAR-RV residual; calm -- predict log(RV) level directly. Materially improved IC and subsequently trading results in calm regime.
@@ -259,7 +261,7 @@ sharpe_scale_t = clip(rolling_sharpe[t-63..t-1] / sharpe_floor, 0, 1)
 # Current issues and next steps
 
 - Test statistical jump models as regime classifiers
-- Change the strategy and the target based on what data is available: maybe hourly log_return prediction, to explore more intraday variation
+- Change the target 
 
 ---
 
